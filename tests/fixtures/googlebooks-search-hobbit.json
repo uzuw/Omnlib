@@ -1,0 +1,19 @@
+{
+  "items": [
+    {
+      "id": "abc123hobbit",
+      "volumeInfo": {
+        "title": "The Hobbit",
+        "authors": ["J.R.R. Tolkien"],
+        "description": "Bilbo Baggins is a hobbit who enjoys a comfortable life.",
+        "publishedDate": "1937-09-21",
+        "pageCount": 310,
+        "categories": ["Fiction", "Fantasy"],
+        "imageLinks": {
+          "thumbnail": "http://books.google.com/books/content?id=abc123hobbit&printsec=frontcover&img=1&zoom=1&edge=curl"
+        },
+        "industryIdentifiers": [{ "type": "ISBN_13", "identifier": "9780547928227" }]
+      }
+    }
+  ]
+}

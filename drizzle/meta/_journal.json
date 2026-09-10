@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1788591502581,
+      "tag": "0000_wakeful_gambit",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1788592517080,
+      "tag": "0001_nifty_sentinel",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1788597566812,
+      "tag": "0002_adorable_molten_man",
+      "breakpoints": true
+    }
+  ]
+}

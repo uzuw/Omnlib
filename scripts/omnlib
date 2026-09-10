@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+# Omnlib - one command to run the whole library app, from anywhere.
+#   omnlib            dev server on http://localhost:3000
+#   omnlib start      production mode (builds once if needed)
+#   omnlib migrate    (re)create the database + search index
+#   omnlib status     is it running?
+#   OMS_PORT=4000 omnlib   use a different port
+set -euo pipefail
+
+# Resolve the project dir from this file's own absolute path,
+# so it works no matter where the command is invoked from.
+SELF="$(readlink -f "${BASH_SOURCE[0]}")"
+PROJECT_DIR="$(cd "$(dirname "$SELF")/.." && pwd)"
+PORT="${OMS_PORT:-3000}"
+CMD="${1:-dev}"
+
+cd "$PROJECT_DIR"
+
+ensure_db() {
+  if [[ ! -f "$PROJECT_DIR/data/oms.db" ]]; then
+    echo "first run: creating database + search index..."
+    npm run db:migrate >/dev/null
+    echo "ok database ready"
+  fi
+}
+
+already_running() {
+  curl -s -o /dev/null -m 2 "http://localhost:$PORT" 2>/dev/null
+}
+
+case "$CMD" in
+  help|-h|--help)
+    echo "omnlib - one command for Omnlib"
+    echo
+    echo "  omnlib             start in dev mode -> http://localhost:$PORT"
+    echo "  omnlib dev         same as default"
+    echo "  omnlib start       optimized production server (auto-builds first time)"
+    echo "  omnlib migrate     (re)create DB + search index"
+    echo "  omnlib status      is the app running?"
+    echo "  omnlib stop        stop the server on the port"
+    echo "  omnlib help        this text"
+    echo
+    echo "  library management (server must be running):"
+    echo "    omnlib list            show your library"
+    echo "    omnlib find <q>        search catalog + providers"
+    echo "    omnlib add <q|ref>     search-and-add, or add by anilist:21 / tmdb:550 / googlebooks:ISBN"
+    echo "    omnlib show <id>       show one entry"
+    echo "    omnlib set <id> ...    update status/rating/notes"
+    echo "    omnlib progress <id> +N|-N|=N"
+    echo "    omnlib rm <id> --yes   remove from library"
+    echo "    omnlib sync --limit N  refresh tracked items (same engine as the Sync button)"
+    echo "    omnlib import <source> <file>"
+    echo "    omnlib cli             full CLI reference"
+    echo
+    echo "  OMS_PORT=4000 omnlib   run on a different port"
+    ;;
+  cli)
+    # full CLI reference — delegates to the tsx CLI (server must be running)
+    exec ./node_modules/.bin/tsx scripts/omnlib-cli.ts --help
+    ;;
+  migrate)
+    exec npm run db:migrate
+    ;;
+  status)
+    if already_running; then
+      echo "Omnlib is running at http://localhost:$PORT  (project: $PROJECT_DIR)"
+    else
+      echo "Omnlib is not running (project: $PROJECT_DIR)"
+    fi
+    ;;
+  stop)
+    echo "stopping Omnlib on port $PORT…"
+    pids=""
+    if command -v lsof >/dev/null 2>&1; then
+      pids="$(lsof -ti tcp:$PORT 2>/dev/null || true)"
+    fi
+    if [[ -z "$pids" ]] && command -v fuser >/dev/null 2>&1; then
+      pids="$(fuser $PORT/tcp 2>/dev/null || true)"
+    fi
+    if [[ -z "$pids" ]]; then
+      pids="$(pgrep -f "next dev -p $PORT" 2>/dev/null || true)"
+    fi
+    if [[ -z "$pids" ]]; then
+      echo "nothing is running on port $PORT"
+      exit 0
+    fi
+    for pid in $pids; do kill "$pid" 2>/dev/null || true; done
+    sleep 1
+    if already_running; then
+      echo "still responding — forcing…"
+      command -v fuser >/dev/null 2>&1 && fuser -k $PORT/tcp 2>/dev/null || true
+      sleep 1
+    fi
+    if already_running; then
+      echo "could not stop the process on port $PORT (permissions?)"
+    else
+      echo "stopped — Omnlib is offline."
+    fi
+    ;;
+  start)
+    ensure_db
+    if [[ ! -d "$PROJECT_DIR/.next" ]]; then
+      echo "building production bundle (first time)..."
+      npm run build
+    fi
+    if already_running; then
+      echo "Omnlib is already running at http://localhost:$PORT"
+      exit 0
+    fi
+    echo "Omnlib (production) at http://localhost:$PORT  - Ctrl+C to stop"
+    exec npm start -- -p "$PORT"
+    ;;
+  dev)
+    ensure_db
+    if already_running; then
+      echo "Omnlib is already running at http://localhost:$PORT"
+      exit 0
+    fi
+    echo "Omnlib at http://localhost:$PORT  - Ctrl+C to stop"
+    exec npm run dev -- -p "$PORT"
+    ;;
+  list|find|add|show|set|progress|rm|sync|import)
+    # library management over a RUNNING server (see scripts/omnlib-cli.ts)
+    exec ./node_modules/.bin/tsx scripts/omnlib-cli.ts "$@"
+    ;;
+  *)
+    echo "unknown command: $CMD" >&2
+    echo "run 'omnlib help' for usage" >&2
+    exit 2
+    ;;
+esac
