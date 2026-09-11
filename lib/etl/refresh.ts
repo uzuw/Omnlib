@@ -4,6 +4,7 @@ import { db } from "../db/client";
 import { media, syncState, userMedia } from "../db/schema";
 import { ingestRecord } from "./ingest";
 import { anilist } from "../providers/anilist";
+import { kitsu } from "../providers/kitsu";
 import { tmdb } from "../providers/tmdb";
 import { googlebooks } from "../providers/googlebooks";
 import { openlibrary } from "../providers/openlibrary";
@@ -13,7 +14,7 @@ import { CURRENT_USER_ID } from "../constants";
 const PROVIDERS: Record<
   string,
   { available: boolean; byId: (id: string) => Promise<MediaRecord | null>; episodes?: (id: string) => Promise<MediaRecord["episodes"]> }
-> = { anilist, tmdb, googlebooks, openlibrary };
+> = { anilist, kitsu, tmdb, googlebooks, openlibrary };
 
 export interface RefreshResult {
   ok: string[];      // titles refreshed successfully

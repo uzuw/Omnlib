@@ -13,6 +13,7 @@ type Stats = {
   genreCount: number;
   topGenres: { name: string; count: number }[];
   monthlyActivity: { month: string; label: string; n: number }[];
+  dailyActivity: { date: string; n: number }[];
 };
 
 const PALETTE = [
@@ -92,6 +93,25 @@ export default function StatsPage() {
 
   const showActivity = totalActivity > 0;
 
+  // ---- streak (github-style): consecutive active days ----
+  const daily = stats.dailyActivity ?? [];
+  const maxDay = Math.max(1, ...daily.map((d) => d.n));
+  const level = (n: number) => (n <= 0 ? 0 : Math.min(4, 1 + Math.floor((n / maxDay) * 3)));
+  let streak = 0;
+  for (let i = daily.length - 1 - (daily.length > 0 && daily[daily.length - 1].n === 0 ? 1 : 0); i >= 0; i--) {
+    if (daily[i].n > 0) streak++;
+    else break;
+  }
+  let longest = 0;
+  let run = 0;
+  let activeDays = 0;
+  for (const d of daily) {
+    if (d.n > 0) { run++; activeDays++; longest = Math.max(longest, run); }
+    else run = 0;
+  }
+  const firstDay = daily[0];
+  const leadBlanks = firstDay ? new Date(Number(firstDay.date.slice(0, 4)), Number(firstDay.date.slice(5, 7)) - 1, Number(firstDay.date.slice(8, 10))).getDay() : 0;
+
   return (
     <div className="space-y-12">
       <header>
@@ -110,6 +130,51 @@ export default function StatsPage() {
           );
         })}
       </div>
+
+      {/* streak heatmap */}
+      <section className="card p-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="h2-display text-xl">Consistency</h2>
+          <span className="badge" style={streak > 0 ? { color: "var(--ember)", borderColor: "rgba(255,107,74,0.35)" } : undefined}>
+            {streak > 0 ? `${streak} day streak` : "no active streak"}
+          </span>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-6">
+          {[
+            { value: String(streak), label: "CURRENT STREAK" },
+            { value: String(longest), label: "LONGEST STREAK" },
+            { value: String(activeDays), label: "ACTIVE DAYS · 20 WKS" },
+          ].map(function (s) {
+            return (
+              <div key={s.label}>
+                <p className="h1-display text-3xl" style={{ color: "var(--ember)" }}>{s.value}</p>
+                <p className="font-mono2 mt-1 text-[10px] uppercase tracking-widest text-[var(--ink-faint)]">{s.label}</p>
+              </div>
+            );
+          })}
+        </div>
+        {daily.length > 0 ? (
+          <div className="mt-5 overflow-x-auto pb-1">
+            <div className="streak-grid" role="img" aria-label={`Daily activity heatmap: ${streak} day current streak, ${longest} day longest`}>
+              {Array.from({ length: leadBlanks }).map(function (_, i) {
+                return <span key={"b" + i} className="streak-cell" style={{ visibility: "hidden" }} />;
+              })}
+              {daily.map(function (d) {
+                return <span key={d.date} className="streak-cell" data-lv={level(d.n)} title={`${d.date}: ${d.n} event${d.n === 1 ? "" : "s"}`} />;
+              })}
+            </div>
+            <div className="mt-3 flex items-center justify-end gap-1.5">
+              <span className="font-mono2 text-[10px] text-[var(--ink-faint)]">Less</span>
+              {[0, 1, 2, 3, 4].map(function (l) {
+                return <span key={l} className="streak-cell" data-lv={l} />;
+              })}
+              <span className="font-mono2 text-[10px] text-[var(--ink-faint)]">More</span>
+            </div>
+          </div>
+        ) : (
+          <p className="mt-6 text-center text-sm text-[var(--ink-faint)]">Log progress on any title to start your streak.</p>
+        )}
+      </section>
 
       {/* activity line chart */}
       <section className="card p-6">

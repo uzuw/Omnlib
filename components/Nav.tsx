@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SyncButton from "./SyncButton";
+import ThemeToggle from "./ThemeToggle";
 
 const LINKS = [
   { href: "/", label: "Discover" },
@@ -27,7 +28,7 @@ export default function Nav() {
   return (
     <header
       className="sticky top-0 z-50 border-b"
-      style={{ borderColor: "var(--line)", background: "rgba(10,12,17,0.78)", backdropFilter: "blur(18px)" }}
+      style={{ borderColor: "var(--line)", background: "color-mix(in srgb, var(--bg) 78%, transparent)", backdropFilter: "blur(18px)" }}
     >
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-3">
         <Link href="/" className="group flex shrink-0 items-baseline gap-1.5" aria-label="Omnlib home">
@@ -50,6 +51,7 @@ export default function Nav() {
             </Link>
           ))}
           <span className="mx-1.5 hidden h-5 w-px bg-[var(--line)] sm:block" />
+          <ThemeToggle />
           <SyncButton compact />
         </nav>
       </div>

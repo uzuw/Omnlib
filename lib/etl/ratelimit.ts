@@ -30,6 +30,7 @@ export class TokenBucket {
 /** Shared buckets (module-level singletons). */
 export const buckets: Record<string, TokenBucket> = {
   anilist: new TokenBucket(30, 1.5), // ~90/min ceiling, stay well under
+  kitsu: new TokenBucket(10, 2),
   tmdb: new TokenBucket(10, 2),
   googlebooks: new TokenBucket(5, 1),
   openlibrary: new TokenBucket(2, 0.8), // polite, ~1/s

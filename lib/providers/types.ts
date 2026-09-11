@@ -4,7 +4,7 @@
 
 import type { MediaType } from "../db/schema";
 
-export type ProviderName = "anilist" | "tmdb" | "googlebooks" | "openlibrary";
+export type ProviderName = "anilist" | "kitsu" | "tmdb" | "googlebooks" | "openlibrary";
 
 export type MediaStatusNormalized = "releasing" | "finished" | "upcoming" | "hiatus" | "cancelled";
 

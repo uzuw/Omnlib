@@ -16,7 +16,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${display.variable} ${mono.variable} ${body.variable}`}>
+    <html lang="en" className={`${display.variable} ${mono.variable} ${body.variable}`} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            /* ponytail: one inline script beats a theme-provider dep + avoids FOUC */
+            __html: `(function(){try{var t=localStorage.getItem("omnlib-theme");if(!t)t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";document.documentElement.dataset.theme=t}catch(e){}})()`,
+          }}
+        />
+      </head>
       <body className="grain glow-ember min-h-screen flex flex-col">
         <Nav />
         <main className="mx-auto w-full max-w-6xl flex-1 px-5 pb-20 pt-6 sm:pt-8">{children}</main>

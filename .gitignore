@@ -41,7 +41,10 @@ yarn-error.log*
 next-env.d.ts
 
 # OmniShelf local data & sandboxed caches
-data/
+# (data/oms.db is a committed EMPTY database so clones boot instantly —
+# run `git update-index --skip-worktree data/oms.db` if your local rows dirty the tree)
+data/*
+!data/oms.db
 .cache/
 .pnpm-store/
 .home/

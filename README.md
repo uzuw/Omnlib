@@ -9,7 +9,7 @@
 ## ✨ Features
 
 - **Six formats, one library** — anime, manga, light novels, webseries, movies and ebooks/novels, each with its own accent, shelf and semantics (episodes, chapters, `%` for films/books).
-- **Own database, built from APIs** — Omnlib ETLs AniList, TMDB, Google Books and Open Library into a local SQLite catalog with an FTS5 search index; the UI reads *your* DB, and providers are consulted only when you search, add, refresh or sync.
+- **Own database, built from APIs** — Omnlib ETLs AniList, Kitsu (manga/manhwa fallback), TMDB, Google Books and Open Library into a local SQLite catalog with an FTS5 search index; the UI reads *your* DB, and providers are consulted only when you search, add, refresh or sync.
 - **Story universe graph** — every item shows its adaptations and source material across formats (*Mushoku Tensei*: light novel ⇄ anime; anime films link to their series; TMDB franchises are grouped into **Collections**).
 - **Unified everything** — one timeline of every action, one stats dashboard (12-month activity line, genre donut, completion rate), one *Coming up* calendar of episodes you track.
 - **Trending before you search** — AniList + TMDB weekly trending per format on the home screen, replaced instantly by live search results.
@@ -23,7 +23,7 @@
 |---|---|
 | Frontend / API | Next.js 16 (App Router, TypeScript, Turbopack) |
 | ORM / DB | Drizzle ORM · better-sqlite3 · FTS5 |
-| Data sources | AniList (GraphQL), TMDB (REST), Google Books, Open Library |
+| Data sources | AniList (GraphQL), Kitsu (manga fallback), TMDB (REST), Google Books, Open Library |
 | Styling | Tailwind v4 + custom design system |
 | Tests | Vitest (offline fixture-based) |
 | PWA | Web App Manifest + service worker |
@@ -46,7 +46,7 @@ Optional configuration (copy `.env.example` → `.env.local`):
 |---|---|---|
 | `TMDB_API_KEY` | for webseries + live-action movies | Live TMDB search, weekly trending, franchise Collections |
 | `GOOGLE_BOOKS_API_KEY` | recommended | Raises the (otherwise heavily throttled) Google Books quota |
-| `DATABASE_PATH` | no | Override the SQLite file location (default `data/omn.db`) |
+| `DATABASE_PATH` | no | Override the SQLite file location (default `data/oms.db`) |
 | `OMS_PORT` | no | Default port for the `omnlib` launcher (default 3000) |
 
 ## 🖥️ CLI guide
@@ -75,7 +75,7 @@ While the server is **running**, `omnlib` can manage your library directly — e
 |---|---|
 | `omnlib list [--status s] [--type t] [--json]` | List your library (filter by status/type; `--json` for machines/AI) |
 | `omnlib find <q> [--type t] [--json]` | Search catalog + live providers, print provider refs |
-| `omnlib add <title | provider:id> [--status s] [--type t] [--index N] [--yes] [--json]` | Search-and-add in one step, or add by ref (`anilist:21`, `tmdb:550`, `googlebooks:isbn`, `openlibrary:/works/…`) |
+| `omnlib add <title | provider:id> [--status s] [--type t] [--index N] [--yes] [--json]` | Search-and-add in one step, or add by ref (`anilist:21`, `kitsu:56748`, `tmdb:550`, `googlebooks:isbn`, `openlibrary:/works/…`) |
 | `omnlib show <entry-id | media-id> [--json]` | Show one entry: progress, rating, notes, synopsis |
 | `omnlib set <entry-id> [--status s] [--rating N] [--notes "..."]` | Update status / rating / notes |
 | `omnlib progress <entry-id> <+N | -N | =N> [--json]` | Bump or set progress — auto-completes at the total (same engine as the web) |
@@ -98,7 +98,7 @@ omnlib list --type anime --json | jq .       # machine-readable for scripts/AI a
 
 Env: `OMS_URL=http://host:port` overrides the local port (`OMS_PORT`, default 3000) — handy for remote servers. Single-user (acts as user 1, same as the web).
 
-> 🤖 **AI agents:** read [`docs/omnlib-cli.md`](./docs/omnlib-cli.md) for the machine-oriented tool doc (JSON shapes, exit codes, failure handling, recipes).
+> 🤖 **AI agents:** every CLI command takes `--json` (machine-readable output, stable exit codes: 0 ok, 1 server/API error, 2 usage error). An MCP server wraps the CLI for agent clients — run `npm run mcp` (stdio) and point your client at `scripts/omnlib-mcp.ts` with `OMS_PORT` set to the running server. Tools: `list find show add set progress remove sync` (`remove` needs `yes: true`).
 
 ### npm scripts
 
@@ -113,6 +113,7 @@ Env: `OMS_URL=http://host:port` overrides the local port (`OMS_PORT`, default 30
 | `npm run find -- "mushoku tensei" light_novel` | Search providers, print ids |
 | `npm run import-file anilist ~/Downloads/anilist_export.json` | Import a tracker export (direct-DB script) |
 | `npm run omnlib-cli [-- <cmd>]` | Run the terminal CLI directly (used by `omnlib <cmd>`) |
+| `npm run mcp` | MCP server over the CLI for AI agents (stdio) |
 | `npm test` | Vitest suite (offline) |
 
 ## 🌐 Web app guide
@@ -143,15 +144,15 @@ Import via the web UI (`/import`) or the CLI (`npm run import-file <source> <fil
 
 ```
 app/             App Router pages + API route handlers
-components/      Nav, SyncButton, service-worker registration
+components/      Nav, ThemeToggle, SyncButton, service-worker registration
 lib/db/          Drizzle schema, SQLite client, migrations
-lib/providers/   AniList, TMDB, Google Books, Open Library clients
+lib/providers/   AniList, Kitsu, TMDB, Google Books, Open Library clients
 lib/etl/         normalize, rate-limit, ingest (upsert + relation staging), refresh
 lib/import/      parsers (AniList/MAL/IMDb/Goodreads), resolution, import engine
-scripts/         CLI: omnlib launcher, install, ingest, sync, find, import-file, db tooling
+scripts/         CLI: omnlib launcher, install, ingest, sync, find, import-file, db tooling, MCP server
 tests/           offline fixture tests (vitest)
 drizzle/         generated migrations
-data/            SQLite database (gitignored)
+data/            SQLite database — an EMPTY copy is committed so clones boot instantly
 ```
 
 ## 🧪 Development

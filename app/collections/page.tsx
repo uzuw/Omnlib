@@ -20,14 +20,16 @@ export default function CollectionsPage() {
       {cols.length === 0 && <p className="pt-10 text-center text-[var(--ink-dim)]">No collections yet — movie pages link to their franchise once saved.</p>}
       <div className="stagger grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
         {cols.map((c) => (
-          <Link key={c.id} href={`/collections/${c.id}`} className="card overflow-hidden p-3 transition-transform hover:-translate-y-1">
-            <div className="cover-wrap mb-2.5 aspect-[21/12]">
+          <Link key={c.id} href={`/collections/${c.id}`} className="card overflow-hidden transition-transform hover:-translate-y-1">
+            <div className="cover-wrap card-cover-top aspect-[21/12]">
               {c.coverUrl ? <img src={c.coverUrl} alt={c.title} loading="lazy" /> : <div className="cover-fallback text-xl">{c.title[0]}</div>}
             </div>
+            <div className="p-3 pt-2.5">
             <p className="truncate text-[14px] font-semibold">{c.title}</p>
             <p className="font-mono2 mt-0.5 text-[10px] uppercase tracking-wider text-[var(--ink-faint)]">
               {c.memberCount} item{c.memberCount === 1 ? "" : "s"}{c.sampleTitle ? " · " + c.sampleTitle : ""}
             </p>
+            </div>
           </Link>
         ))}
       </div>

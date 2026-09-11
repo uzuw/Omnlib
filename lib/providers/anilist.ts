@@ -16,7 +16,8 @@ const ENDPOINT = "https://graphql.anilist.co";
 async function gql<T>(query: string, variables: Record<string, unknown>): Promise<T | null> {
   const res = await fetchWithRetry(ENDPOINT, buckets.anilist, {
     method: "POST",
-    headers: { "content-type": "application/json", accept: "application/json" },
+    // ponytail: AniList Cloudflare 403s the default undici UA — a browser UA passes
+    headers: { "content-type": "application/json", accept: "application/json", "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36" },
     body: JSON.stringify({ query, variables }),
   });
   const json = (await res.json()) as { data?: T; errors?: { status?: number; message?: string }[] };

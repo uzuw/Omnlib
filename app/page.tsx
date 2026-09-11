@@ -25,8 +25,8 @@ function HitCard({
   onAdd: (hit: SearchHit) => void;
 }) {
   return (
-    <div className="card card-hover flex flex-col p-2.5">
-      <Link href={hit.mediaId ? `/media/${hit.mediaId}` : "#"} className="cover-wrap mb-2 aspect-[2/3] block">
+    <div className="card card-hover flex flex-col overflow-hidden">
+      <Link href={hit.mediaId ? `/media/${hit.mediaId}` : "#"} className="cover-wrap card-cover-top block aspect-[3/4]">
         {hit.coverUrl ? <img src={hit.coverUrl} alt={hit.title} loading="lazy" /> : <div className="cover-fallback text-2xl">{hit.title[0]}</div>}
         <div className="cover-veil">
           <span className="badge" style={{ borderColor: "var(--line-strong)", color: "var(--ink)" }}>
@@ -34,6 +34,7 @@ function HitCard({
           </span>
         </div>
       </Link>
+      <div className="flex flex-1 flex-col p-3">
       <p className="line-clamp-2 min-h-[34px] text-[13px] font-semibold leading-snug">{hit.title}</p>
       <p className="mt-1 flex items-center justify-between gap-2">
         <span className={`font-mono2 text-[10px] ${TYPE_META[hit.mediaType].accent}`}>{TYPE_META[hit.mediaType].label}</span>
@@ -41,7 +42,7 @@ function HitCard({
       </p>
       <p className="font-mono2 mb-2 text-[10px] text-[var(--ink-faint)]">{unitOf(hit)}</p>
       <button
-        className="btn w-full"
+        className="btn mt-auto w-full"
         data-on={added}
         disabled={busy || added}
         onClick={() => onAdd(hit)}
@@ -49,6 +50,7 @@ function HitCard({
       >
         {busy ? "Saving…" : added ? "✓ In your library" : hit.mediaId ? "Add to library" : "Save + add"}
       </button>
+      </div>
     </div>
   );
 }
@@ -212,16 +214,18 @@ export default function Home() {
               const total = e.entry.total ?? (e.media.mediaType === "movie" ? 100 : e.media.episodesTotal ?? e.media.chaptersTotal ?? 0);
               const pct = total > 0 ? Math.min(100, Math.round((e.entry.progress / total) * 100)) : 0;
               return (
-                <Link key={e.entry.id} href={`/media/${e.media.id}`} className="card card-hover w-40 shrink-0 overflow-hidden p-3">
-                  <div className="cover-wrap mb-2.5 aspect-[2/3]">
+                <Link key={e.entry.id} href={`/media/${e.media.id}`} className="card card-hover w-40 shrink-0 overflow-hidden">
+                  <div className="cover-wrap card-cover-top aspect-[3/4]">
                     {e.media.coverUrl ? <img src={e.media.coverUrl} alt={e.media.title} loading="lazy" /> : <div className="cover-fallback">{e.media.title[0]}</div>}
                   </div>
+                  <div className="p-3 pt-2.5">
                   <p className="truncate text-[13px] font-semibold">{e.media.title}</p>
                   <p className={`font-mono2 mb-2 mt-0.5 text-[10px] uppercase tracking-wider ${meta.accent}`}>
                     {meta.label} · {STATUS_LABEL[e.entry.status]}
                   </p>
                   <div className="progress-track"><div className="progress-fill" style={{ width: pct + "%" }} /></div>
                   <p className="font-mono2 mt-1 text-[10px] text-[var(--ink-faint)]">{e.entry.progress}/{total || "—"}</p>
+                  </div>
                 </Link>
               );
             })}
@@ -252,7 +256,7 @@ export default function Home() {
       {/* search results — only while searching */}
       {searchingMode && (
         <section className="space-y-10">
-          <p className="font-mono2 text-[11px] tracking-widest text-[var(--ink-faint)]">
+          <p className="font-mono2 text-[11px] tracking-widest text-[var(--ink-faint)]" role="status" aria-live="polite">
             {searching ? "…searching providers" : `${results.length} result${results.length === 1 ? "" : "s"} found`}
           </p>
           {!searching && groups.length === 0 && (

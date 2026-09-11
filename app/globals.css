@@ -40,6 +40,48 @@
 }
 
 html { color-scheme: dark; scroll-behavior: smooth; }
+html[data-theme="light"] { color-scheme: light; }
+
+/* ponytail: light mode is just variable overrides, no second stylesheet */
+:root[data-theme="light"] {
+  --bg: #f5f1e8;
+  --bg-2: #efe9da;
+  --surface: #fffdf7;
+  --surface-2: #e9e1cf;
+  --line: rgba(25, 24, 23, 0.12);
+  --line-strong: rgba(25, 24, 23, 0.24);
+  --ink: #1a1815;
+  --ink-dim: #55534b;
+  --ink-faint: #8b877a;
+  --ember: #d94f2a;
+  --ember-soft: rgba(217, 79, 42, 0.1);
+  --shadow-card: 0 2px 0 0 rgba(255,255,255,0.6) inset, 0 14px 32px -22px rgba(60, 45, 20, 0.35);
+  --shadow-cover: 0 14px 30px -18px rgba(60, 45, 20, 0.4);
+}
+html[data-theme="light"] .glow-ember {
+  background:
+    radial-gradient(55% 45% at 28% -4%, rgba(217, 79, 42, 0.08), transparent 70%),
+    radial-gradient(45% 40% at 88% 4%, rgba(120, 90, 220, 0.06), transparent 70%),
+    var(--bg);
+}
+html[data-theme="light"] .progress-track { background: rgba(25, 24, 23, 0.1); }
+html[data-theme="light"] .skeleton { background: rgba(25, 24, 23, 0.07); }
+html[data-theme="light"] .btn,
+html[data-theme="light"] .icon-btn,
+html[data-theme="light"] .chip { background: rgba(255, 255, 255, 0.6); }
+html[data-theme="light"] .seg { background: rgba(25, 24, 23, 0.06); }
+html[data-theme="light"] .seg > button[data-on="true"] {
+  color: var(--ink);
+  background: linear-gradient(180deg, #ffffff, #ece5d3);
+}
+html[data-theme="light"] .grain::before { opacity: 0.03; }
+html[data-theme="light"] .card-hover:hover {
+  box-shadow: 0 16px 34px -24px rgba(80, 60, 25, 0.35);
+}
+
+/* ponytail: full-bleed card covers — kill .cover-wrap radius when flush to card top */
+.card-cover-top { border-radius: 0; box-shadow: none; }
+.card-cover-top img { transition: transform 0.5s var(--ease); }
 
 body {
   background: var(--bg);
@@ -138,7 +180,10 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
 }
 
 /* ---------- buttons / chips ---------- */
+/* ponytail: CSS-only press dynamics — no motion lib for what :active + spring easing cover */
+.btn, .chip, .icon-btn, .seg > button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -150,12 +195,13 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
   font-weight: 600;
   color: var(--ink-dim);
   background: rgba(255, 255, 255, 0.03);
-  transition: all 0.18s var(--ease);
+  transition: transform 0.22s var(--ease-pop), color 0.15s var(--ease), border-color 0.15s var(--ease), box-shadow 0.2s var(--ease), filter 0.15s var(--ease);
   cursor: pointer;
   white-space: nowrap;
+  overflow: hidden;
 }
-.btn:hover { color: var(--ink); border-color: var(--line-strong); transform: translateY(-1px); }
-.btn:active { transform: translateY(0) scale(0.98); }
+.btn:hover { color: var(--ink); border-color: var(--line-strong); }
+.btn:active { transform: translateY(1px) scale(0.94); transition-duration: 0.08s; }
 .btn-primary {
   background: linear-gradient(180deg, #ff7958, var(--ember));
   border-color: transparent;
@@ -163,6 +209,7 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
   box-shadow: 0 8px 24px -10px rgba(255, 107, 74, 0.55);
 }
 .btn-primary:hover { filter: brightness(1.06); color: #180b06; border-color: transparent; }
+.btn-primary:active { filter: brightness(0.96); }
 .btn[disabled] { opacity: 0.45; pointer-events: none; }
 
 .icon-btn {
@@ -175,10 +222,11 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
   border: 1px solid var(--line);
   color: var(--ink-dim);
   background: rgba(255, 255, 255, 0.03);
-  transition: all 0.15s var(--ease);
+  transition: transform 0.22s var(--ease-pop), color 0.15s var(--ease), border-color 0.15s var(--ease), background 0.15s var(--ease);
   cursor: pointer;
 }
-.icon-btn:hover { color: var(--ink); border-color: var(--line-strong); transform: translateY(-1px); }
+.icon-btn:hover { color: var(--ink); border-color: var(--line-strong); }
+.icon-btn:active { transform: scale(0.88); transition-duration: 0.08s; }
 .icon-btn[disabled] { opacity: 0.4; pointer-events: none; }
 
 .chip {
@@ -193,9 +241,11 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
   color: var(--ink-dim);
   background: rgba(255, 255, 255, 0.03);
   cursor: pointer;
-  transition: all 0.15s var(--ease);
+  transition: transform 0.22s var(--ease-pop), color 0.15s var(--ease), border-color 0.15s var(--ease), background 0.15s var(--ease), box-shadow 0.2s var(--ease);
   white-space: nowrap;
 }
+.chip:hover:not([data-on="true"]) { color: var(--ink); border-color: var(--line-strong); }
+.chip:active { transform: scale(0.92); transition-duration: 0.08s; }
 .chip[data-on="true"] {
   color: var(--ink);
   border-color: color-mix(in srgb, var(--ember) 55%, transparent);
@@ -222,8 +272,10 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s var(--ease);
+  transition: transform 0.22s var(--ease-pop), color 0.15s var(--ease), background 0.15s var(--ease), box-shadow 0.2s var(--ease);
 }
+.seg > button:hover:not([data-on="true"]) { color: var(--ink); }
+.seg > button:active { transform: scale(0.9); transition-duration: 0.08s; }
 .seg > button[data-on="true"] {
   color: var(--ink);
   background: linear-gradient(180deg, #242b3d, #1b2130);
@@ -362,10 +414,11 @@ input.search-input::placeholder { color: var(--ink-faint); opacity: 0.8; }
   font-size: 13px;
   font-weight: 600;
   color: var(--ink-dim);
-  transition: color 0.15s var(--ease), background 0.15s var(--ease);
+  transition: color 0.15s var(--ease), background 0.15s var(--ease), transform 0.22s var(--ease-pop);
   text-decoration: none;
 }
 .navlink:hover { color: var(--ink); background: rgba(255, 255, 255, 0.04); }
+.navlink:active { transform: scale(0.93); transition-duration: 0.08s; }
 .navlink[data-on="true"] { color: var(--ink); }
 .navlink[data-on="true"]::after {
   content: "";
@@ -414,6 +467,32 @@ a { color: inherit; }
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------- streak heatmap (github-style) ---------- */
+.streak-grid {
+  display: grid;
+  grid-template-rows: repeat(7, 11px);
+  grid-auto-flow: column;
+  gap: 3px;
+  justify-content: start;
+}
+.streak-cell {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--ink-faint) 18%, transparent);
+  transition: transform 0.15s var(--ease-pop);
+}
+.streak-cell[data-lv="1"] { background: color-mix(in srgb, var(--ember) 30%, transparent); }
+.streak-cell[data-lv="2"] { background: color-mix(in srgb, var(--ember) 55%, transparent); }
+.streak-cell[data-lv="3"] { background: color-mix(in srgb, var(--ember) 80%, transparent); }
+.streak-cell[data-lv="4"] { background: var(--ember); box-shadow: 0 0 8px -2px var(--ember); }
+.streak-cell:hover { transform: scale(1.35); }
+
+/* ponytail: navbar keeps its playful hover — scoped so page buttons stay calm */
+header .navlink:hover { transform: translateY(-1px); }
+header .icon-btn:hover { transform: translateY(-1px) scale(1.06); }
+header .btn:hover { transform: translateY(-1px); }
 
 /* ---------- responsive helpers ---------- */
 .scroll-x {

@@ -73,10 +73,12 @@ export default function LibraryPage() {
       {!loaded && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="card p-3">
-              <div className="skeleton mb-2 aspect-[2/3] w-full" />
+            <div key={i} className="card overflow-hidden">
+              <div className="skeleton aspect-[3/4] w-full" style={{ borderRadius: 0 }} />
+              <div className="p-3">
               <div className="skeleton mb-2 h-3 w-3/4" />
               <div className="skeleton h-3 w-1/2" />
+              </div>
             </div>
           ))}
         </div>
@@ -102,11 +104,12 @@ export default function LibraryPage() {
               const total = e.entry.total ?? (e.media.mediaType === "movie" ? 100 : e.media.episodesTotal ?? e.media.chaptersTotal ?? e.media.volumesTotal ?? 0);
               const pct = total > 0 ? Math.min(100, Math.round((e.entry.progress / total) * 100)) : 0;
               return (
-                <Link key={e.entry.id} href={`/media/${e.media.id}`} className="card card-hover no-underline overflow-hidden p-3">
-                  <div className="cover-wrap mb-2.5 aspect-[2/3]">
+                <Link key={e.entry.id} href={`/media/${e.media.id}`} className="card card-hover no-underline overflow-hidden">
+                  <div className="cover-wrap card-cover-top aspect-[3/4]">
                     {e.media.coverUrl ? <img src={e.media.coverUrl} alt={e.media.title} loading="lazy" /> : <div className="cover-fallback">{e.media.title[0]}</div>}
                     <div className="cover-veil"><span className="badge" style={{ color: "var(--ink)" }}>Open</span></div>
                   </div>
+                  <div className="p-3 pt-2.5">
                   <p className="truncate text-[13px] font-semibold no-underline">{e.media.title}</p>
                   <p className="font-mono2 mb-2 mt-0.5 flex items-center justify-between text-[10px] uppercase tracking-wider text-[var(--ink-faint)] no-underline">
                     <span>{e.media.year ?? "—"} · {STATUS_LABEL[e.entry.status]}</span>
@@ -116,6 +119,7 @@ export default function LibraryPage() {
                   <p className="font-mono2 mt-1 text-[10px] text-[var(--ink-faint)]">
                     {e.entry.progress}/{total || "—"} {e.entry.progressUnit}
                   </p>
+                  </div>
                 </Link>
               );
             })}

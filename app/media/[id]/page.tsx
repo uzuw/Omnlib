@@ -312,7 +312,7 @@ export default function MediaPage() {
           <div className="stagger mt-5 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
             {data.collection.members.map((mm) => (
               <Link key={mm.id} href={`/media/${mm.id}`} className="group">
-                <div className="cover-wrap mb-1.5 aspect-[2/3]">
+                <div className="cover-wrap mb-1.5 aspect-[3/4]">
                   {mm.coverUrl ? <img src={mm.coverUrl} alt={mm.title} loading="lazy" /> : <div className="cover-fallback text-sm">{mm.title[0]}</div>}
                 </div>
                 <p className="truncate text-[11px] font-medium text-[var(--ink-dim)] transition-colors group-hover:text-[var(--ink)]">{mm.title}</p>

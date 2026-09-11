@@ -25,14 +25,16 @@ export default function CollectionPage() {
       </header>
       <div className="stagger grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {data.members.map((mm) => (
-          <Link key={mm.id} href={`/media/${mm.id}`} className="card overflow-hidden p-3 transition-transform hover:-translate-y-1">
-            <div className="cover-wrap mb-2.5 aspect-[2/3]">
+          <Link key={mm.id} href={`/media/${mm.id}`} className="card overflow-hidden transition-transform hover:-translate-y-1">
+            <div className="cover-wrap card-cover-top aspect-[3/4]">
               {mm.coverUrl ? <img src={mm.coverUrl} alt={mm.title} loading="lazy" /> : <div className="cover-fallback">{mm.title[0]}</div>}
             </div>
+            <div className="p-3 pt-2.5">
             <p className="truncate text-[13px] font-semibold">{mm.title}</p>
             <p className="font-mono2 mt-0.5 text-[10px] uppercase tracking-wider text-[var(--ink-faint)]">
               {mm.year ?? "—"} · <span className={`${TYPE_META[mm.mediaType].accent}`}>{TYPE_META[mm.mediaType].label}</span>
             </p>
+            </div>
           </Link>
         ))}
       </div>

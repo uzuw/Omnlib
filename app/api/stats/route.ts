@@ -51,6 +51,25 @@ export async function GET() {
     monthly.push({ month: key, label: d.toLocaleString("en", { month: "short" }), n: byMonth.get(key) ?? 0 });
   }
 
+  // daily activity: CONTIGUOUS last-20-weeks series (zero-filled for the streak heatmap)
+  const STREAK_DAYS = 140;
+  const rawDaily = (sqlite
+    .prepare(
+      `SELECT strftime('%Y-%m-%d', occurred_at/1000, 'unixepoch', 'localtime') AS day, count(*) AS n
+       FROM activity_log WHERE user_id = ? AND occurred_at >= ?
+       GROUP BY day ORDER BY day`,
+    )
+    .all(CURRENT_USER_ID, Date.now() - 1000 * 60 * 60 * 24 * (STREAK_DAYS + 1)) as { day: string; n: number }[]);
+  const byDay = new Map(rawDaily.map((d) => [d.day, d.n]));
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const daily: { date: string; n: number }[] = [];
+  for (let i = STREAK_DAYS - 1; i >= 0; i--) {
+    const d = new Date(today.getTime() - i * 86400000);
+    const key = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    daily.push({ date: key, n: byDay.get(key) ?? 0 });
+  }
+
   const totalGenres = Object.keys(genres).length;
   const completionRate = lib.length ? Math.round((completedCount / lib.length) * 100) : 0;
   const timeHours =
@@ -69,5 +88,6 @@ export async function GET() {
     genreCount: totalGenres,
     topGenres: Object.entries(genres).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([name, count]) => ({ name, count })),
     monthlyActivity: monthly,
+    dailyActivity: daily,
   });
 }
