@@ -98,6 +98,8 @@ omnlib list --type anime --json | jq .       # machine-readable for scripts/AI a
 
 Env: `OMS_URL=http://host:port` overrides the local port (`OMS_PORT`, default 3000) — handy for remote servers. Single-user (acts as user 1, same as the web).
 
+> 🤖 **AI agents:** read [`docs/omnlib-cli.md`](./docs/omnlib-cli.md) for the machine-oriented tool doc (JSON shapes, exit codes, failure handling, recipes).
+
 ### npm scripts
 
 | Command | What it does |
