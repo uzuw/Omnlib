@@ -33,8 +33,8 @@
 **Prerequisites:** Node.js ≥ 20 and npm.
 
 ```bash
-git clone <your-repo-url> omnlib
-cd omnlib
+git clone https://github.com/uzuw/Omnlib.git
+cd Omnlib
 npm install
 npm run db:migrate        # create the SQLite database + FTS search index
 npm run dev               # http://localhost:3000
