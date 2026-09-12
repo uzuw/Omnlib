@@ -48,3 +48,6 @@ data/*
 .cache/
 .pnpm-store/
 .home/
+
+# local pnpm/npm paths (machine-specific, never commit)
+.npmrc
