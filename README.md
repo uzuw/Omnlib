@@ -168,9 +168,19 @@ Rate limits are built in (per-provider token buckets, 429 back-off, overall time
 
 ## 🧭 Roadmap (post-MVP)
 
+**Tracker integrations**
 - Trakt OAuth and AniList/MAL OAuth connect flows (beyond file import)
+- Crunchyroll import/sync (watchlist + watch history via account export)
+- More anime/manga trackers: Simkl, Kitsu, MangaUpdates, Anime-Planet
+- More movie/TV trackers: Letterboxd (CSV import), TV Time
+- More providers: MangaDex (chapters), …
+
+**Sync & notifications**
+- Cloud sync — optional encrypted SQLite backup/sync to Google Drive, so your library follows you across devices
 - Push notifications for new episodes
-- More providers (MangaDex, …) and more charts
+
+**Stats & discovery**
+- More charts (streak records, per-format ratings, yearly recap)
 
 ## ⚠️ Known limitations
 
